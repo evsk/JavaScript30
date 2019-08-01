@@ -7,6 +7,54 @@
 <body>
 <canvas id="draw" width="800" height="800"></canvas>
 <script>
+  const canvas = document.querySelector('#draw');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  ctx.strokeStyle = '#BADA55'; // default before setting strokeStyle to hsl color below
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.globalCompositeOperation = 'multiply';  // property to handle color created when drawing one line over another
+
+  let isDrawing = false;
+  let lastX = 0;
+  let lastY = 0;
+  let hue = 0;
+  let increaseLineWidth = true;
+
+  function draw(e) {
+    if (!isDrawing) return;
+   
+    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY); // where to start the line
+    ctx.lineTo(e.offsetX, e.offsetY); // where to end the line
+    ctx.stroke();
+    [lastX, lastY] = [e.offsetX, e.offsetY]; // update where to start next line
+    
+    hue++;
+    if (hue > 360) {
+      hue = 0;
+    }
+
+    if (ctx.lineWidth > 100 || ctx.lineWidth <= 1) {
+      increaseLineWidth = !increaseLineWidth;
+    }
+    if (increaseLineWidth) {
+      ctx.lineWidth++;
+    } else {
+      ctx.lineWidth--;
+    }
+  }
+  
+  canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    ctx.lineWidth = 1; // resetting line width on each new line drawn
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+  });
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', () => isDrawing = false);
+  canvas.addEventListener('mouseout', () => isDrawing = false); 
 </script>
 
 <style>
